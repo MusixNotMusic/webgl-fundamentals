@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="../../resources/webgl-tutorials.css">
+    </head>
+    <body>
+        <h1 class="description">3D in WebGL</h1>
+        <p><canvas id="c"></canvas></p>
+        <!-- vertex shader -->
+        <script  id="vertex-shader-2d" type="x-shader/x-vertex">
+        attribute vec4 a_position;
+        uniform mat4 u_worldViewProjection;
+
+        void main() {
+            gl_Position = u_worldViewProjection * a_position;
+        }
+        </script>
+        <!-- fragment shader -->
+        <script  id="fragment-shader-2d" type="x-shader/x-fragment">
+        void main() {
+            gl_FragColor = vec4(0,0,0,1);
+        }
+        </script>
+        <script src="../../resources/webgl-utils.js"></script>
+        <script src="../../resources/m4.js"></script>
+        <script src="./index.js"></script>
+    </body>
+</html>
