@@ -12,10 +12,20 @@ const relativePath = path.relative(path.resolve(process.cwd(), argv2), resources
 const indexHtml = `<html>
     <head>
         <link rel="stylesheet" href="${relativePath}/webgl-tutorials.css">
+        <style>
+            body {
+                margin: 0;
+            }
+            canvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }
+        </style>
     </head>
     <body>
-        <h1 class="description">3D in WebGL</h1>
-        <p><canvas id="c"></canvas></p>
+        <h1 class="description">${argv2}</h1>
+        <canvas id="c"></canvas>
         <!-- vertex shader -->
         <script  id="vertex-shader-2d" type="x-shader/x-vertex">
         attribute vec4 a_position;
@@ -32,6 +42,7 @@ const indexHtml = `<html>
         }
         </script>
         <script src="${relativePath}/webgl-utils.js"></script>
+        <script src="${relativePath}/webgl-lessons-ui.js"></script>
         <script src="${relativePath}/m4.js"></script>
         <script src="./index.js"></script>
     </body>
@@ -39,6 +50,48 @@ const indexHtml = `<html>
 `;
 
 const indexJs = `"use strict"
+
+const vertex = '
+attribute vec4 a_position;
+attribute vec3 a_normal;
+
+uniform mat4 u_matrix;
+
+varying vec3 v_normal;
+
+void main() {
+  // Multiply the position by the matrix.
+  gl_Position = u_matrix * a_position;
+  
+  // Pass the normal to the fragment shader
+  v_normal = a_normal;
+}
+'
+
+const fragment = '
+precision mediump float;
+
+// Passed in from the vertex shader.
+varying vec3 v_normal;
+
+uniform vec3 u_reverseLightDirection;
+uniform vec4 u_color;
+
+void main() {
+  // because v_normal is a varying it's interpolated
+  // so it will not be a unit vector. Normalizing it
+  // will make it a unit vector again
+  vec3 normal = normalize(v_normal);
+  
+  float light = dot(normal, u_reverseLightDirection);
+  
+  gl_FragColor = u_color;
+  
+  // Lets multiply just the color portion (not the alpha)
+  // by the light
+  gl_FragColor.rgb *= light;
+}
+'
 
 function main () {
     var cubeVertices = [
@@ -87,6 +140,7 @@ function main () {
     }
 
     var program = webglUtils.createProgramFromScripts(gl, ["vertex-shader-2d", "fragment-shader-2d"]);
+    // var program = webglUtils.createProgramFromSources(gl, [vertex, fragment]);
     gl.useProgram(program);
 
     var positionLoc = gl.getAttribLocation(program, 'a_position');
