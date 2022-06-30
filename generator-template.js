@@ -51,7 +51,7 @@ const indexHtml = `<html>
 
 const indexJs = `"use strict"
 
-const vertex = '
+const vertex = \`
 attribute vec4 a_position;
 attribute vec3 a_normal;
 
@@ -66,9 +66,9 @@ void main() {
   // Pass the normal to the fragment shader
   v_normal = a_normal;
 }
-'
+\`
 
-const fragment = '
+const fragment = \`
 precision mediump float;
 
 // Passed in from the vertex shader.
@@ -91,7 +91,7 @@ void main() {
   // by the light
   gl_FragColor.rgb *= light;
 }
-'
+\`
 
 function main () {
     var cubeVertices = [
