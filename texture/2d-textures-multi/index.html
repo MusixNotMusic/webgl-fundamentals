@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="../../resources/webgl-tutorials.css">
+        <style>
+            body {
+                margin: 0;
+            }
+            canvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="description">texture/3d-textures</h1>
+        <canvas id="canvas"></canvas>
+        <!-- vertex shader -->
+        <script  id="vertex-shader-2d" type="x-shader/x-vertex">
+        attribute vec4 a_position;
+        uniform mat4 u_worldViewProjection;
+
+        void main() {
+            gl_Position = u_worldViewProjection * a_position;
+        }
+        </script>
+        <!-- fragment shader -->
+        <script  id="fragment-shader-2d" type="x-shader/x-fragment">
+        void main() {
+            gl_FragColor = vec4(0,0,0,1);
+        }
+        </script>
+        <script src="../../resources/webgl-utils.js"></script>
+        <script src="../../resources/webgl-lessons-ui.js"></script>
+        <script src="../../resources/m4.js"></script>
+        <script src="../../resources/data.js"></script>
+        <script src="./index.js"></script>
+    </body>
+</html>
