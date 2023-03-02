@@ -12,5 +12,8 @@
     "js"
   ],
   "author": "musix7",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "zstddec": "^0.0.2"
+  }
 }

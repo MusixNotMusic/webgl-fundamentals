@@ -1,1 +1,4 @@
 sumsung
+node_modules
+./package.json
+.vscode
