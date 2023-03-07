@@ -1,3 +1,9 @@
 {
-    "workbench.editor.showTabs": false
+    "workbench.editor.showTabs": true,
+    "workbench.editor.tabSizing": "fit",
+    "workbench.editor.scrollToSwitchTabs": false,
+    "workbench.editor.highlightModifiedTabs": false,
+    "workbench.editor.wrapTabs": false,
+    "workbench.editor.pinnedTabSizing": "normal",
+    "workbench.editor.tabCloseButton": "right"
 }

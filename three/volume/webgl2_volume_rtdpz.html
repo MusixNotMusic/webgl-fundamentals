@@ -129,10 +129,13 @@
 
 				const vertexShader = /* glsl */`
 					uniform mat4 MVPMatrix;
+					uniform vec3 cameraPos;
 					varying vec3 v_position;
+					
 					void main(){
 						gl_Position = MVPMatrix * vec4(position, 1.0);
 						v_position = position;
+						vOrigin = vec3( inverse( modelMatrix ) * vec4( cameraPos, 1.0 ) ).xyz;
 					}
 				`;
 
@@ -244,9 +247,9 @@
 
 						float distance = dot(nearPos - v_position, dir);
 						
-						distance=max(distance,min((-0.5 - v_position.x)/dir.x,(0.5 - v_position.x)/dir.x));
-						distance=max(distance,min((-0.5 - v_position.y)/dir.y,(0.5 - v_position.y)/dir.y));
-						distance=max(distance,min((-0.5 - v_position.z)/dir.z,(0.5 - v_position.z)/dir.z));
+						distance=max(distance,min((-0.5 - v_position.x) / dir.x,(0.5 - v_position.x)/dir.x));
+						distance=max(distance,min((-0.5 - v_position.y) / dir.y,(0.5 - v_position.y)/dir.y));
+						distance=max(distance,min((-0.5 - v_position.z) / dir.z,(0.5 - v_position.z)/dir.z));
 						
 						vec3 frontPos = v_position + dir * distance;
 						vec3 currentPosition = frontPos + 0.5;
