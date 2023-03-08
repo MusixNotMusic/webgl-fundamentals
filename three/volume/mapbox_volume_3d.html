@@ -6,6 +6,7 @@
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+<script src="../lib/gl-matrix.js"></script>
 <style>
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
@@ -32,6 +33,7 @@ body { margin: 0; padding: 0; }
     import { GLTFLoader  } from 'three/addons/loaders/GLTFLoader.js';
     // import { VolumeRenderShader1 } from 'three/addons/shaders/VolumeShader.js';
     import { VolumeRenderShader1 } from './VolumeShader.js';
+    import { CameraSync } from '../lib/mapbox/CameraSync.js';
     import WebGL from 'three/addons/capabilities/WebGL.js';
 
     export default class VolumeISOShaderModelAlpha {
@@ -289,6 +291,7 @@ body { margin: 0; padding: 0; }
         }
     }
 
+    const { mat4 } = glMatrix
 	
     if ( WebGL.isWebGL2Available() === false ) {
 
@@ -310,7 +313,7 @@ body { margin: 0; padding: 0; }
         scene = new THREE.Scene();
 
         // Create renderer
-        renderer = new THREE.WebGLRenderer();
+        renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( renderer.domElement );
@@ -336,19 +339,17 @@ body { margin: 0; padding: 0; }
         // Create camera (The volume renderer does not work very well with perspective yet)
         const h = 1512; // frustum height
         const aspect = window.innerWidth / window.innerHeight;
-        camera = new THREE.OrthographicCamera( - h * aspect / 2, h * aspect / 2, h / 2, - h / 2, 1, 10000 );
-        // camera = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
+        // camera = new THREE.OrthographicCamera( - h * aspect / 2, h * aspect / 2, h / 2, - h / 2, 1, 1e5 );
+        camera = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
         camera.position.set( 1000, 1000, 1000 );
         camera.up.set( 0, 0, 1 ); // In our data, z is up
 
         // Create controls
-        controls = new OrbitControls( camera, renderer.domElement );
-        controls.addEventListener( 'change', render );
-        controls.target.set( 500, 500, 0 );
-        // controls.minZoom = 0.5;
-        // controls.maxZoom = 10;
-        controls.enablePan = true;
-        controls.update();
+        // controls = new OrbitControls( camera, renderer.domElement );
+        // controls.addEventListener( 'change', render );
+        // controls.target.set( 500, 500, 0 );
+        // controls.enablePan = true;
+        // controls.update();
 
         scene.add( new THREE.AxesHelper( 1000 ) );
 
@@ -570,7 +571,7 @@ body { margin: 0; padding: 0; }
             this.scene.add( box );
 
 
-            this.map = map;
+            window.mapIns = this.map = map;
             this.map.on("resize", this.onResize.bind(this));
 
             // use the Mapbox GL JS map canvas for three.js
@@ -626,19 +627,43 @@ body { margin: 0; padding: 0; }
 
             this.camera.projectionMatrix = m.multiply(l);
 
+            // camera.projectionMatrix = m.multiply(l);
+            // if (renderer) {
+                // renderer.resetState();
+                // renderer.render(scene, camera);
+            // }
+
+            const transform = this.map.transform;
+      
+            const projectionMatrix = new Float64Array(16),
+                  projectionMatrixI = new Float64Array(16),
+                  viewMatrix = new Float64Array(16),
+                  viewMatrixI = new Float64Array(16);
+            
+            const halfFov = transform._fov / 2;
+            const groundAngle = Math.PI / 2 + transform._pitch;
+            const topHalfSurfaceDistance = Math.sin(halfFov) * transform.cameraToCenterDistance / Math.sin(Math.PI - groundAngle - halfFov);
+            const furthestDistance = Math.cos(Math.PI / 2 - transform._pitch) * topHalfSurfaceDistance + transform.cameraToCenterDistance;
+            const farZ = furthestDistance * 1.01;
+            
+            mat4.perspective(projectionMatrix, transform._fov, transform.width / transform.height, 1, farZ);
+            mat4.invert(projectionMatrixI, projectionMatrix);
+            mat4.multiply(viewMatrix, projectionMatrixI, matrix);
+            mat4.invert(viewMatrixI, viewMatrix);
+            
+            camera.projectionMatrix =  new THREE.Matrix4().fromArray(projectionMatrix);
+            camera.matrix = new THREE.Matrix4().fromArray(viewMatrixI);
+            camera.matrix.decompose(camera.position, camera.quaternion, camera.scale);
+
+            if (renderer) {
+                renderer.resetState();
+                renderer.render(scene, camera);
+            }
+
             if (this.renderer) {
                 this.renderer.resetState();
                 this.renderer.render(this.scene, this.camera);
             }
-
-            // camera
-            camera.projectionMatrix = m.multiply(l);
-
-            if (renderer) {
-                renderer.resetState();
-                // renderer.render(scene, camera);
-            }
-
             if (this.map) {
                 this.map.triggerRepaint();
             }
