@@ -164,6 +164,8 @@
             uniforms[ 'u_renderthreshold' ].value = volconfig.isothreshold; // For ISO renderstyle
             uniforms[ 'u_cmdata' ].value = cmtextures[ volconfig.colormap ];
 
+			console.log('uniforms ==>', uniforms)
+
             material = new THREE.ShaderMaterial( {
                 uniforms: uniforms,
                 vertexShader: shader.vertexShader,
@@ -194,7 +196,7 @@
 			material.uniforms[ 'u_cmdata' ].value = cmtextures[ volconfig.colormap ];
 
 			render();
-			
+
 		}
 
 		function onWindowResize() {

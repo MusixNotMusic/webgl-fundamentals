@@ -198,7 +198,7 @@ const VolumeRenderShader1 = {
 						}
 
 						// Resolve final color
-						gl_FragColor = max_val > 0.1 ? apply_colormap(max_val) : vec4(0.0);
+						gl_FragColor = max_val > 0.01 ? apply_colormap(max_val) : vec4(0.0);
 				}
 
 
