@@ -14,6 +14,8 @@
   "author": "musix7",
   "license": "ISC",
   "dependencies": {
+    "@unseenco/e": "^2.3.0",
+    "gsap": "^3.11.5",
     "zstddec": "^0.0.2"
   }
 }
